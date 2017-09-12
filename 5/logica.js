@@ -1,0 +1,91 @@
+var camera, scene, renderer; // Esto son variables globales comunes a todo el proyecto
+var mesh;
+var cajaflota = new THREE.Mesh(); // Declaro la variable aqui arriba para poder acceder a ella siempre que quiera
+var suzannerueda = new THREE.Mesh();
+var angulo = 0;
+init(); // Se ejecuta una vez para crear una configuracion inicial
+animate(); // Se ejecuta constantemente
+
+function init(){
+	// Creo una camara y una escena
+		camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 2000 );
+		camera.position.z = 150
+		camera.position.y = 120
+		camera.rotation.x = 0-Math.PI/8
+		scene = new THREE.Scene();
+	// Creamos una luz
+		var spotLight = new THREE.SpotLight( 0xffffff ); // Este es el color de la luz
+		spotLight.position.set( 100, 1000, 100 ); // La luz va a estar en 
+		spotLight.castShadow = true;				// Acepto que la luz proyecta sobras
+		spotLight.shadow.mapSize.width = 4096;		// La calidad por defecto esta a 1024
+		spotLight.shadow.mapSize.height = 4096;
+		spotLight.shadow.camera.near = 500;			// No proyectes sobras mas cercano
+		spotLight.shadow.camera.far = 4000;			// No proyectes sobras a mas lejanos
+		spotLight.shadow.camera.fov = 30;			// Apertura del cono de la camara
+		scene.add( spotLight );
+	// Crear una super esfera para contener un fondo
+		var geomesfera = new THREE.SphereGeometry( 1500,32,32 );
+		var texturaesfera = new THREE.TextureLoader().load( 'obj/panorama.jpg' ); // Cargo una textura del disco duro
+		var materialesfera = new THREE.MeshBasicMaterial( { map:texturaesfera } );
+		esfera = new THREE.Mesh( geomesfera, materialesfera );
+		esfera.scale.x = -1
+		scene.add( esfera );
+	// Ahora importo un objeto en formato OBJLoader2	
+		var loader = new THREE.OBJLoader2(); // instantiate the loader	
+		var intergrateIntoScene = function ( object ) {
+			object.scale.x = 20;
+			object.scale.y = 20;
+			object.scale.z = 20;
+			suzannerueda = object;
+			suzannerueda.castShadow = true;
+			suzannerueda.receiveShadow = true;
+			scene.add( suzannerueda ); // function called on successful load
+		};
+		loader.load( 'obj/suzanne.obj', intergrateIntoScene );// load a resource from provided URL
+		
+	// Todo este bloque es para crear una plano
+		// Creo una geometria que tiene forma de caja
+		var texture = new THREE.TextureLoader().load( 'obj/cesped2.jpg' ); // Cargo una textura del disco duro
+		var geometry = new THREE.BoxGeometry( 150,5,150 );
+		var material = new THREE.MeshPhongMaterial( { map:texture } );
+		// La malla es la que auna la geometria con su material
+		mesh = new THREE.Mesh( geometry, material );
+		// Cogemos la malla y realmente la añadimos a la escena
+		mesh.castShadow = true;
+		mesh.receiveShadow = true;
+		scene.add( mesh );
+	// De nuestro mundo 3D, definimos como se renderiza
+		renderer = new THREE.WebGLRenderer();
+		renderer.setPixelRatio( 1 );
+		renderer.setClearColor( 0xffffff, 1 );
+		renderer.shadowMapEnabled = true; // El renderizador debe soportar sombras
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		//renderer.setSize(400,400); // El tamaño de la ventana con la que voy a trabajar
+		document.getElementById("aplicacion3d").appendChild( renderer.domElement ); // Añademe la ventana al navegador
+	// A ver que pasa cuando toco la interfaz de usuario:
+		$("#edicion").change(function(){ // Controla cuando hay cambios en el desplegable "edicion"
+			if($(this).val() == "borrar"){	// Controla si el elemento que se ha seleccionado es "borrar"
+				scene.remove(suzannerueda);
+			}
+		})
+		$("#crear").change(function(){
+			if($(this).val() == "esfera"){
+				//...
+			}
+			if($(this).val() == "cubo"){
+				//...
+			}
+			// ...
+		})
+		}
+
+function animate(){
+	//console.log("hola")
+	angulo+= 0.01;
+	suzannerueda.rotation.y = angulo
+	//camera.rotation.y = angulo
+	renderer.render( scene, camera );
+	requestAnimationFrame( animate ); // Te ejecutas a ti misma de manera infinita
+}
+			
+			
