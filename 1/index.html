@@ -1,0 +1,75 @@
+<html>
+	<head>
+		<script src="../lib/three.min.js">
+		</script>
+	</head>
+	<body>
+		<script>
+			var camera, scene, renderer;
+			var mesh;
+			var cajaflota = new THREE.Mesh(); // Declaro la variable aqui arriba para poder acceder a ella siempre que quiera
+		var angulo = 0;
+			init(); // Se ejecuta una vez para crear una configuracion inicial
+			animate(); // Se ejecuta constantemente
+			
+			function init(){
+				// Creo una camara y una escena
+					camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
+					camera.position.z = 150
+					camera.position.y = 80
+					scene = new THREE.Scene();
+				// Creamos una luz
+					var spotLight = new THREE.SpotLight( 0xffffff ); // Este es el color de la luz
+					spotLight.position.set( 100, 1000, 100 ); // La luz va a estar en 
+					spotLight.castShadow = true;				// Acepto que la luz proyecta sobras
+					spotLight.shadow.mapSize.width = 4096;		// La calidad por defecto esta a 1024
+					spotLight.shadow.mapSize.height = 4096;
+					spotLight.shadow.camera.near = 500;			// No proyectes sobras mas cercano
+					spotLight.shadow.camera.far = 4000;			// No proyectes sobras a mas lejanos
+					spotLight.shadow.camera.fov = 30;			// Apertura del cono de la camara
+					scene.add( spotLight );
+				// Todo este bloque es para crear una caja
+					// Creo una geometria que tiene forma de caja
+					var geometry = new THREE.BoxGeometry( 50,50,50 );
+					var material = new THREE.MeshPhongMaterial( { color:0xff0000 } );
+					// La malla es la que auna la geometria con su material
+					mesh = new THREE.Mesh( geometry, material );
+					cajaflota = mesh;
+					cajaflota.rotation.x = Math.PI/4
+					cajaflota.position.y = 50;
+					cajaflota.castShadow = true;
+					cajaflota.receiveShadow = true;
+					// Cogemos la malla y realmente la añadimos a la escena
+					scene.add( cajaflota );
+				// Todo este bloque es para crear una plano
+					// Creo una geometria que tiene forma de caja
+					var geometry = new THREE.BoxGeometry( 150,5,150 );
+					var material = new THREE.MeshPhongMaterial( { color:0x00ff00 } );
+					// La malla es la que auna la geometria con su material
+					mesh = new THREE.Mesh( geometry, material );
+					// Cogemos la malla y realmente la añadimos a la escena
+					mesh.castShadow = true;
+					mesh.receiveShadow = true;
+					scene.add( mesh );
+				// De nuestro mundo 3D, definimos como se renderiza
+					renderer = new THREE.WebGLRenderer();
+					renderer.setPixelRatio( window.devicePixelRatio );
+					renderer.setClearColor( 0xffffff, 1 );
+					renderer.shadowMapEnabled = true; // El renderizador debe soportar sombras
+					//renderer.setSize( window.innerWidth, window.innerHeight );
+					renderer.setSize(400,400); // El tamaño de la ventana con la que voy a trabajar
+					document.body.appendChild( renderer.domElement ); // Añademe la ventana al navegador
+			}
+			
+			function animate(){
+				//console.log("hola")
+				angulo+= 0.01;
+				cajaflota.rotation.x = angulo
+				renderer.render( scene, camera );
+				requestAnimationFrame( animate ); // Te ejecutas a ti misma de manera infinita
+			}
+			
+			
+		</script>
+	</body>
+</html>
